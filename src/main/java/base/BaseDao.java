@@ -15,8 +15,6 @@ import com.mongodb.DBCollection;
 import com.mongodb.DBObject;
 import com.mongodb.util.JSON;
 
-import net.sf.json.JSONObject;
-
 /**
  * @author haoxw
  * @since 2014/4/15
