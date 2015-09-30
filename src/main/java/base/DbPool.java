@@ -1,4 +1,4 @@
-package com.chanjet.imp.dao.mongo.base;
+package base;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -10,9 +10,6 @@ import org.bson.Document;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.chanjet.imp.configcenter.ZkHelp;
-import com.chanjet.imp.utils.DefaultStringUtils;
-import com.github.zkclient.IZkDataListener;
 import com.mongodb.DB;
 import com.mongodb.DBCollection;
 import com.mongodb.MongoClient;
@@ -23,11 +20,14 @@ import com.mongodb.WriteConcern;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 
+import util.DefaultStringUtils;
+
 /**
- * mongodb 线程安全 单例池
+ * @author zhailzh1
  * 
- * @author haoxw
- * @since 2014/4/15
+ * @Date 2015年9月29日——上午11:22:38
+ * 
+ *       mongo数据库连接池
  */
 public class DbPool {
   private final static Logger logger = LoggerFactory.getLogger(DbPool.class);
@@ -45,7 +45,7 @@ public class DbPool {
   public String dbName = "";
   public String userName = "";
   public String pwd = "";
-  // public boolean authed = false;
+  public boolean authed = false;
   // private final static ZkHelp zkHelp = ZkHelp.getInstance();
 
   private DbPool() {}
@@ -60,6 +60,7 @@ public class DbPool {
       // logger.info("!!! mongo node data has been deleted !!!" + dataPath);
       // }
       //
+      //
       // public void handleDataChange(String dataPath, byte[] data) throws
       // Exception {
       // logger.info("!!! mongo node data has been changed !!!" + dataPath);
@@ -69,7 +70,7 @@ public class DbPool {
       // been rebuild !!!" + dataPath);
       // }
       // };
-      // // 节点添加监控
+      // 节点添加监控
       // zkHelp.subscribeDataChanges(zkPath, listener);
       // 初始化 公用redis集群
       instance.initialPool(zkPath);
@@ -199,12 +200,12 @@ public class DbPool {
   /**
    * 构造mongo connection list
    * 
-   * @param zkPath
+   * @param configValue
    * @return
    */
-  private List<List<ServerAddress>> constructConnectionAddress(String zkPath) {
+  private List<List<ServerAddress>> constructConnectionAddress(String configValue) {
     List<List<ServerAddress>> listServerAddressBig = new ArrayList<List<ServerAddress>>();
-    String mongoArrays[] = new String(zkHelp.getValue(zkPath)).split("[|]");
+    String mongoArrays[] = configValue.split("[|]");
     try {
       for (int i = 0; i < mongoArrays.length; i++) {
         List<ServerAddress> listServerAddress = new ArrayList<ServerAddress>();
@@ -215,9 +216,9 @@ public class DbPool {
               host_port[1]));
           listServerAddress.add(serverAddress);
           if (DefaultStringUtils.isEmpty(dbName) && DefaultStringUtils.isEmpty(pwd)) {
-            this.dbName = host_port[2];
-            this.userName = host_port[3];
-            this.pwd = host_port[4];
+            this.userName = host_port[2];
+            this.pwd = host_port[3];
+            this.dbName = host_port[4];
           }
         }
         listServerAddressBig.add(listServerAddress);

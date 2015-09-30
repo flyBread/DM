@@ -18,7 +18,7 @@ public class Configuration {
   private Configuration() {
     // 加载配置的文件
     proper = new Properties();
-    InputStream inStream = this.getClass().getResourceAsStream("config.properties");
+    InputStream inStream = ClassLoader.getSystemResourceAsStream("config.properties");
     try {
       proper.load(inStream);
     }
@@ -36,8 +36,17 @@ public class Configuration {
     return SignalHolder.ins;
   }
 
+  public String getConfigValue(String key) {
+    if (this.proper != null) {
+      return this.proper.getProperty(key);
+    } else {
+      throw new IllegalStateException("配置信息没有加载！");
+    }
+  }
+
   public static void main(String[] args) {
-    // TODO Auto-generated method stub
+    String value = Configuration.getSignalIns().getConfigValue("mongos_path");
+    System.out.println(value);
 
   }
 

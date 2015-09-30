@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
+import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -16,8 +17,11 @@ import com.mongodb.DBObject;
 import com.mongodb.util.JSON;
 
 /**
- * @author haoxw
- * @since 2014/4/15
+ * @author zhailzh1
+ * 
+ * @Date 2015年9月29日——上午11:22:38
+ * 
+ *       mongo数据库的操作工具类
  */
 public class BaseDao {
   private final static Logger logger = LoggerFactory.getLogger(DbPool.class);
@@ -25,17 +29,14 @@ public class BaseDao {
 
   private DbPool dbPool = null;
 
-  private BaseDao(String zkPath) {
-    dbPool = DbPool.getInstance(zkPath);
+  private BaseDao(String configValue) {
+    dbPool = DbPool.getInstance(configValue);
   }
 
+  /**
+   * 根据标记对应一个一个的baseDao的实例，这样不会在高并发的时候出现差错表 的bug
+   */
   public synchronized static BaseDao getInstance(String zkPath) {
-
-    /**
-     * if (instance == null) { instance = new BaseDao(); dbPool =
-     * DbPool.getInstance(zkPath); } return instance;
-     **/
-
     BaseDao instance = map.get(zkPath);
     if (instance == null) {
       instance = new BaseDao(zkPath);
@@ -45,17 +46,42 @@ public class BaseDao {
   }
 
   /**
-   * 閫傜敤浜庨潪thrift鐢熸垚鐨刯avabean杩斿洖 绠�崟鏉′欢鏌ユ壘 姣斿 灞炴�1=xxx 灞炴�2=mmm
+   * 保存对象
+   */
+  public int addorupdate(String dbkey, Object obj, String collectionName) {
+    int result = -1;
+    try {
+      DBCollection conn = dbPool.getCollection(dbkey, collectionName);
+      DBObject dbObject = objectToDbObject(obj);
+      result = conn.save(dbObject).getN();
+    }
+    catch (Exception e) {
+      logger.error("add", e);
+    }
+    return result;
+  }
+
+  private DBObject objectToDbObject(Object obj) {
+    // TODO Auto-generated method stub
+    return null;
+  }
+
+  /**
+   * 
    * 
    * @param dbkey
+   *          分库的依据
    * @param object
+   *          查询的条件
    * @param collectionName
+   *          所在的表名称
    * @param className
+   *          查询对象的类名
    * @return
    */
-  public List findByParams(String dbkey, BasicDBObject object, String collectionName,
+  public List<Object> findByParams(String dbkey, String collectionName, BasicDBObject object,
       String className) {
-    List resultList = new ArrayList();
+    List<Object> resultList = new ArrayList<Object>();
     try {
       DBCollection conn = dbPool.getCollection(dbkey, collectionName);
       List<DBObject> list = conn.find(object).toArray();
@@ -80,10 +106,10 @@ public class BaseDao {
    * @param className
    * @return
    */
-  public List findByParamsDBObject(String dbkey, DBObject dbObject, String collectionName,
+  public List<Object> findByParamsDBObject(String dbkey, DBObject dbObject, String collectionName,
       String className) {
 
-    List resultList = new ArrayList();
+    List<Object> resultList = new ArrayList<Object>();
     try {
       DBCollection conn = dbPool.getCollection(dbkey, collectionName);
       List<DBObject> list = conn.find(dbObject).toArray();
@@ -133,10 +159,10 @@ public class BaseDao {
    * @param className
    * @return
    */
-  public List findByParamsDBObjectWithOrderLimit(String dbkey, DBObject dbObject,
+  public List<Object> findByParamsDBObjectWithOrderLimit(String dbkey, DBObject dbObject,
       String collectionName, int limit, DBObject orderBy, String className) {
 
-    List resultList = new ArrayList();
+    List<Object> resultList = new ArrayList<Object>();
     try {
       DBCollection conn = dbPool.getCollection(dbkey, collectionName);
       List<DBObject> list = conn.find(dbObject).sort(orderBy).limit(limit).toArray();
@@ -288,28 +314,6 @@ public class BaseDao {
       logger.error("", e);
     }
     return obj;
-  }
-
-  /**
-   * 娣诲姞鎴栬�淇敼璁板綍
-   * 
-   * @param dbkey
-   * @param obj
-   * @param collectionName
-   * @return 濡傛灉缁撴灉澶т簬-1 鍒欒〃绀烘坊鍔犳垚鍔�
-   */
-  @Deprecated
-  public int addorupdate(String dbkey, Object obj, String collectionName) {
-    int result = -1;
-    try {
-      DBCollection conn = dbPool.getCollection(dbkey, collectionName);
-      DBObject dbObject = (DBObject) JSON.parse(JSONObject.fromObject(obj).toString());
-      result = conn.save(dbObject).getN();
-    }
-    catch (Exception e) {
-      logger.error("add", e);
-    }
-    return result;
   }
 
   /**
@@ -542,7 +546,7 @@ public class BaseDao {
     if (dbObject == null) {
       return null;
     }
-    Class clazz = Class.forName(className);
+    Class<?> clazz = Class.forName(className);
     Object obj = clazz.newInstance();
     Field[] fields = clazz.getDeclaredFields();
     for (Field field : fields) {

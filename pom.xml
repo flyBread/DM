@@ -30,10 +30,10 @@
 		</dependency>
 		<!-- 日志文件 -->
 		<dependency>
-			<groupId>org.slf4j</groupId>
-			<artifactId>slf4j-log4j13</artifactId>
-			<version>1.0.1</version>
-		</dependency>
+  <groupId>org.slf4j</groupId>
+  <artifactId>log4j-over-slf4j</artifactId>
+  <version>1.7.5</version>
+</dependency>
 
 		<!-- mongo数据库的java驱动连接 -->
 		<dependency>
@@ -41,6 +41,19 @@
 			<artifactId>mongo-java-driver</artifactId>
 			<version>3.0.3</version>
 		</dependency>
+		<!-- json数据解析 -->
+		<dependency>
+			<groupId>org.json</groupId>
+			<artifactId>json</artifactId>
+			<version>20090211</version>
+		</dependency>
+		<!-- util 工具类 -->
+		<dependency>
+			<groupId>commons-lang</groupId>
+			<artifactId>commons-lang</artifactId>
+			<version>2.6</version>
+		</dependency>
+
 	</dependencies>
 	<build>
 		<finalName>server</finalName>
