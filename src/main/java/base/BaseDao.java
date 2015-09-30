@@ -62,8 +62,9 @@ public class BaseDao {
   }
 
   private DBObject objectToDbObject(Object obj) {
-    // TODO Auto-generated method stub
-    return null;
+    String jsonString = new JSONObject(obj).toString();
+    DBObject dbObject = (DBObject) JSON.parse(jsonString);
+    return dbObject;
   }
 
   /**

@@ -6,7 +6,6 @@ import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
-import org.bson.Document;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -14,11 +13,8 @@ import com.mongodb.DB;
 import com.mongodb.DBCollection;
 import com.mongodb.MongoClient;
 import com.mongodb.MongoClientOptions;
-import com.mongodb.MongoCredential;
 import com.mongodb.ServerAddress;
 import com.mongodb.WriteConcern;
-import com.mongodb.client.MongoCollection;
-import com.mongodb.client.MongoDatabase;
 
 import util.DefaultStringUtils;
 
@@ -97,9 +93,10 @@ public class DbPool {
       listServerAddresses = constructConnectionAddress(zkPath);
 
       logger.info("list: {}", listServerAddresses);
-      MongoCredential cr = MongoCredential.createCredential(userName, dbName, pwd.toCharArray());
-      List<MongoCredential> list_mc = new ArrayList<MongoCredential>();
-      list_mc.add(cr);
+      // MongoCredential cr = MongoCredential.createCredential(userName, dbName,
+      // pwd.toCharArray());
+      // List<MongoCredential> list_mc = new ArrayList<MongoCredential>();
+      // list_mc.add(cr);
 
       for (int i = 0; i < listServerAddresses.size(); i++) {
         MongoClient mongoClient = null;
@@ -109,9 +106,8 @@ public class DbPool {
             .writeConcern(WriteConcern.SAFE).connectionsPerHost(poolSize)
             .threadsAllowedToBlockForConnectionMultiplier(blockSize).connectTimeout(connectTimeout)
             .socketTimeout(socketTimeout).maxWaitTime(maxWaitTime).build();
-        mongoClient = new MongoClient(listServerAddresses.get(i), list_mc, mco);
-        // mongoClient = new MongoClient(listServerAddresses.get(i), mco);
-        // authDb(mongoClient, userName, pwd);
+        mongoClient = new MongoClient(listServerAddresses.get(i), mco);
+        authDb(mongoClient, userName, pwd);
         listMongoClient.add(mongoClient);
       }
       logger.info("end init connection pools");
@@ -129,10 +125,11 @@ public class DbPool {
    * @param key
    * @return
    */
-  // public void authDb(MongoClient mongoClient, String userName, String pwd) {
-  // DB db = mongoClient.getDB(dbName);
-  // authed = db.authenticate(userName, pwd.toCharArray());
-  // }
+  public boolean authDb(MongoClient mongoClient, String userName, String pwd) {
+    DB db = mongoClient.getDB(dbName);
+    authed = db.authenticate(userName, pwd.toCharArray());
+    return authed;
+  }
 
   /**
    * 获取db实例
@@ -183,18 +180,6 @@ public class DbPool {
 
   public DBCollection getCollection(String dbkey, String collectionName) {
     return getMongoDb(dbkey).getCollection(collectionName);
-  }
-
-  /**
-   * 获取要处理的集合
-   * 
-   * @param dbkey
-   *          分库key
-   * @param collectionName
-   * @return
-   */
-  public MongoCollection<Document> getCollection1(String dbkey, String collectionName) {
-    return getMongoDataBase(dbkey).getCollection(collectionName);
   }
 
   /**
@@ -250,13 +235,13 @@ public class DbPool {
    * @param key
    * @return
    */
-  public MongoDatabase getMongoDataBase(String key) {
+  public DB getMongoDataBase(String key) {
     int num = Math.abs(key.hashCode());
     if (num == Integer.MIN_VALUE) {
       num = Integer.MAX_VALUE;
     }
     long result = num % listMongoClient.size();
-    MongoDatabase db = listMongoClient.get((int) result).getDatabase(dbName);
+    DB db = listMongoClient.get((int) result).getDB(dbName);
     return db;
   }
 
