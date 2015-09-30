@@ -13,6 +13,6 @@ public class Main {
     model.setCate("date");
     model.setDate(new Date().toString());
     model.setPrise(17.30);
-    dao.addorupdate("1", model, model.getClass().getSimpleName());
+    dao.add("1", model, model.getClass().getSimpleName());
   }
 }

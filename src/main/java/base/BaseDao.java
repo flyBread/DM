@@ -1,20 +1,18 @@
 package base;
 
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
-import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBCollection;
 import com.mongodb.DBObject;
-import com.mongodb.util.JSON;
+
+import util.ClassTypeConversion;
 
 /**
  * @author zhailzh1
@@ -47,12 +45,19 @@ public class BaseDao {
 
   /**
    * 保存对象
+   * 
+   * @param dbkey
+   *          分库的依据
+   * @param javaBean
+   *          保存的对象
+   * @param collectionName
+   *          保存到的表名称
    */
-  public int addorupdate(String dbkey, Object obj, String collectionName) {
+  public int add(String dbkey, Object javaBean, String collectionName) {
     int result = -1;
     try {
       DBCollection conn = dbPool.getCollection(dbkey, collectionName);
-      DBObject dbObject = objectToDbObject(obj);
+      DBObject dbObject = ClassTypeConversion.objectToDbObject(javaBean);
       result = conn.save(dbObject).getN();
     }
     catch (Exception e) {
@@ -61,10 +66,30 @@ public class BaseDao {
     return result;
   }
 
-  private DBObject objectToDbObject(Object obj) {
-    String jsonString = new JSONObject(obj).toString();
-    DBObject dbObject = (DBObject) JSON.parse(jsonString);
-    return dbObject;
+  /**
+   * 删除对象
+   * 
+   * @param dbkey
+   *          分库依据
+   * @param where
+   *          删除的条件
+   * @param collectionName
+   * @return
+   */
+  public Boolean remove(String dbkey, BasicDBObject where, String collectionName) {
+    int result = -1;
+    if (where == null) {
+      return Boolean.FALSE;
+    }
+    try {
+      DBCollection conn = dbPool.getCollection(dbkey, collectionName);
+      result = conn.remove(where).getN();
+    }
+    catch (Exception e) {
+      logger.error("", e);
+      return Boolean.FALSE;
+    }
+    return result != -1;
   }
 
   /**
@@ -87,7 +112,7 @@ public class BaseDao {
       DBCollection conn = dbPool.getCollection(dbkey, collectionName);
       List<DBObject> list = conn.find(object).toArray();
       for (DBObject dbObj : list) {
-        Object obj = db2Bean(dbObj, className);
+        Object obj = ClassTypeConversion.db2Bean(dbObj, className);
         resultList.add(obj);
       }
     }
@@ -115,7 +140,7 @@ public class BaseDao {
       DBCollection conn = dbPool.getCollection(dbkey, collectionName);
       List<DBObject> list = conn.find(dbObject).toArray();
       for (DBObject dbObj : list) {
-        Object obj = db2Bean(dbObj, className);
+        Object obj = ClassTypeConversion.db2Bean(dbObj, className);
         resultList.add(obj);
       }
     }
@@ -168,7 +193,7 @@ public class BaseDao {
       DBCollection conn = dbPool.getCollection(dbkey, collectionName);
       List<DBObject> list = conn.find(dbObject).sort(orderBy).limit(limit).toArray();
       for (DBObject dbObj : list) {
-        Object obj = db2Bean(dbObj, className);
+        Object obj = ClassTypeConversion.db2Bean(dbObj, className);
         resultList.add(obj);
       }
     }
@@ -193,7 +218,7 @@ public class BaseDao {
   public List<DBObject> findByParamsDBObjectWithOrderLimit(String dbkey, DBObject dbObject,
       String collectionName, int skip, int limit, DBObject orderBy) {
 
-    List<DBObject> resultList = new ArrayList<>();
+    List<DBObject> resultList = new ArrayList<DBObject>();
     try {
       DBCollection conn = dbPool.getCollection(dbkey, collectionName);
       resultList = conn.find(dbObject).sort(orderBy).limit(limit).skip(skip).toArray();
@@ -221,7 +246,7 @@ public class BaseDao {
   public List<DBObject> findByParamsDBObjectWithOrderLimit(String dbkey, DBObject dbObject,
       String collectionName, DBObject orderBy) {
 
-    List<DBObject> resultList = new ArrayList<>();
+    List<DBObject> resultList = new ArrayList<DBObject>();
     try {
       DBCollection conn = dbPool.getCollection(dbkey, collectionName);
       resultList = conn.find(dbObject).sort(orderBy).toArray();
@@ -267,7 +292,7 @@ public class BaseDao {
     try {
       DBCollection conn = dbPool.getCollection(dbkey, collectionName);
       DBObject result = conn.findOne(object);
-      obj = db2Bean(result, className);
+      obj = ClassTypeConversion.db2Bean(result, className);
     }
     catch (Exception e) {
       logger.error("", e);
@@ -309,7 +334,7 @@ public class BaseDao {
     try {
       DBCollection conn = dbPool.getCollection(dbkey, collectionName);
       DBObject dbObject = conn.findOne(new BasicDBObject("_id", id));
-      obj = db2Bean(dbObject, className);
+      obj = ClassTypeConversion.db2Bean(dbObject, className);
     }
     catch (Exception e) {
       logger.error("", e);
@@ -355,7 +380,7 @@ public class BaseDao {
       DBCollection conn = dbPool.getCollection(dbkey, collectionName);
       List<DBObject> listDB = new ArrayList<DBObject>();
       for (int i = 0; i < list.size(); i++) {
-        listDB.add(bean2Db(list.get(i)));
+        listDB.add(ClassTypeConversion.bean2Db(list.get(i)));
       }
       conn.insert(listDB);
     }
@@ -397,7 +422,7 @@ public class BaseDao {
     int result = -1;
     try {
       DBCollection conn = dbPool.getCollection(dbkey, collectionName);
-      result = conn.update(where, bean2Db(newValue)).getN();
+      result = conn.update(where, ClassTypeConversion.bean2Db(newValue)).getN();
     }
     catch (Exception e) {
       logger.error("", e);
@@ -472,30 +497,6 @@ public class BaseDao {
   }
 
   /**
-   * 鍒犻櫎瀵硅薄
-   * 
-   * @param dbkey
-   * @param where
-   *          涓嶈兘绌�
-   * @param collectionName
-   * @return
-   */
-  public int remove(String dbkey, BasicDBObject where, String collectionName) {
-    int result = -1;
-    if (where == null) {
-      return result;
-    }
-    try {
-      DBCollection conn = dbPool.getCollection(dbkey, collectionName);
-      result = conn.remove(where).getN();
-    }
-    catch (Exception e) {
-      logger.error("", e);
-    }
-    return result;
-  }
-
-  /**
    * 缁熻
    * 
    * @param dbkey
@@ -533,80 +534,6 @@ public class BaseDao {
     catch (Exception e) {
       logger.error("", e);
     }
-  }
-
-  /**
-   * mongo瀵硅薄杞崲鎴愭櫘閫歫ava bean瀵硅薄
-   * 
-   * @param dbObject
-   * @param className
-   * @return
-   * @throws Exception
-   */
-  public Object db2Bean(DBObject dbObject, String className) throws Exception {
-    if (dbObject == null) {
-      return null;
-    }
-    Class<?> clazz = Class.forName(className);
-    Object obj = clazz.newInstance();
-    Field[] fields = clazz.getDeclaredFields();
-    for (Field field : fields) {
-      String fieldName = field.getName();
-      String methodName = "set" + fieldName.substring(0, 1).toUpperCase() + fieldName.substring(1,
-          fieldName.length());
-      Method method = null;
-      Object resultObj = null;
-      try {
-        method = clazz.getMethod(methodName, new Class[] { field.getType() });
-      }
-      catch (Exception e) {
-        logger.error("", e);
-        continue;
-      }
-      resultObj = dbObject.get(fieldName);
-      try {
-        resultObj = method.invoke(obj, new Object[] { resultObj });
-      }
-      catch (Exception e) {
-        logger.error("", e);
-        continue;
-      }
-    }
-    return obj;
-  }
-
-  public DBObject bean2Db(Object obj) throws Exception {
-    if (obj == null) {
-      return null;
-    }
-    DBObject dbObject = new BasicDBObject();
-    Class<? extends Object> clazz = obj.getClass();
-    Field[] fields = clazz.getDeclaredFields();
-    for (Field field : fields) {
-      String fieldName = field.getName();
-      String methodName = "get" + fieldName.substring(0, 1).toUpperCase() + fieldName.substring(1,
-          fieldName.length());
-      Method method = null;
-      Object resultObj = null;
-      try {
-        method = clazz.getMethod(methodName);
-      }
-      catch (Exception e) {
-        logger.error("", e);
-        continue;
-      }
-      try {
-        resultObj = method.invoke(obj);
-      }
-      catch (Exception e) {
-        logger.error("", e);
-        continue;
-      }
-      if (resultObj != null && !resultObj.equals("")) {
-        dbObject.put(fieldName, resultObj);
-      }
-    }
-    return dbObject;
   }
 
   /**
