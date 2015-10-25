@@ -127,7 +127,7 @@ public class DbPool {
    */
   public boolean authDb(MongoClient mongoClient, String userName, String pwd) {
     DB db = mongoClient.getDB(dbName);
-    authed = db.authenticate(userName, pwd.toCharArray());
+//    authed = db.authenticate(userName, pwd.toCharArray());
     return authed;
   }
 
