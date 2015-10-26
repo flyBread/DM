@@ -30,9 +30,6 @@ public class BaseAuthInterceptor extends HandlerInterceptorAdapter {
   private boolean debugMode = false;
   private List<String> lstExclude = new ArrayList<String>();
 
-  @Resource(name = "userAuthClient")
-  protected AccountResourceIntf accountResourceIntf;
-
   public BaseAuthInterceptor() {
     lstExclude.add("connection");
     lstExclude.add("cache-control");

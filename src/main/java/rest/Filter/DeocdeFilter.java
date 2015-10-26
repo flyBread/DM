@@ -19,12 +19,10 @@ public class DeocdeFilter implements Filter {
 
   private final static Logger log = LoggerFactory.getLogger(DeocdeFilter.class);
 
-  @Override
   public void init(FilterConfig filterConfig) throws ServletException {
 
   }
 
-  @Override
   public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
       throws IOException, ServletException {
     HttpServletRequest httpServletRequest = (HttpServletRequest) request;
@@ -40,7 +38,6 @@ public class DeocdeFilter implements Filter {
     }
   }
 
-  @Override
   public void destroy() {
 
   }
