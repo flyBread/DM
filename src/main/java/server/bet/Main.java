@@ -2,7 +2,7 @@ package server.bet;
 
 import java.util.Date;
 
-import base.BaseDao;
+import base.mongoDBbase.BaseDao;
 import configCenter.Configuration;
 
 public class Main {

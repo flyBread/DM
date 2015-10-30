@@ -1,4 +1,4 @@
-package base;
+package base.mongoDBbase;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -300,14 +300,6 @@ public class BaseDao {
     return obj;
   }
 
-  /**
-   * 鏉′欢鏌ユ壘鍞竴璁板綍
-   * 
-   * @param dbkey
-   * @param object
-   * @param collectionName
-   * @return
-   */
   public DBObject findOne2(String dbkey, BasicDBObject object, String collectionName) {
     DBObject obj = null;
     try {
@@ -320,15 +312,6 @@ public class BaseDao {
     return obj;
   }
 
-  /**
-   * 閫傜敤浜庨潪thrift鐢熸垚鐨刯avabean杩斿洖 鏍规嵁涓婚敭鏌ユ壘
-   * 
-   * @param dbkey
-   * @param id
-   * @param collectionName
-   * @param className
-   * @return
-   */
   public Object findOneById(String dbkey, Object id, String collectionName, String className) {
     Object obj = null;
     try {
