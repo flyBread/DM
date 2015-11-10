@@ -8,9 +8,9 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.util.StringUtils;
 
 /**
  * 字符串操作工具类
@@ -180,6 +180,10 @@ public class DefaultStringUtils extends StringUtils {
       }
     }
     return str;
+  }
+
+  public static boolean isNotEmpty(String str) {
+    return !isEmpty(str);
   }
 
   /**
@@ -568,5 +572,9 @@ public class DefaultStringUtils extends StringUtils {
     String data = DefaultStringUtils.substring(s, 10, ".....", true);
 
     System.out.println(data);
+  }
+
+  public static boolean isEmpty(String value) {
+    return value == null || value.isEmpty();
   }
 }

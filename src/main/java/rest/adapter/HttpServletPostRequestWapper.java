@@ -8,7 +8,7 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletRequestWrapper;
 
-import org.apache.commons.lang.StringUtils;
+import org.springframework.util.StringUtils;
 
 /**
  * spring mvc httpservletrequest不会转义，这里把取参转义一下

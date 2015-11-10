@@ -1,4 +1,4 @@
-package rest.Filter;
+package rest.filter;
 
 import java.io.IOException;
 

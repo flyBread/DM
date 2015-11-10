@@ -1,4 +1,4 @@
-package rest.intercepror;
+package rest.interceptor;
 
 import java.io.IOException;
 
