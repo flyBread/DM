@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<head>
+    <meta charset="utf-8">
+    <title>ECharts</title>
+    <script src="static/jquery-1.10.1.min.js"></script>
+    <script src="http://echarts.baidu.com/build/dist/echarts-all.js"></script>
+    
+</head>
+<body>
+    <!-- 为ECharts准备一个具备大小（宽高）的Dom -->
+    <div id="main" style="height:400px"></div>
+    <div id="main1" style="height:500px"></div>
+    <!-- ECharts单文件引入 -->
+    
+    <script type="text/javascript">
+        // 基于准备好的dom，初始化echarts图表
+        var myChart = echarts.init(document.getElementById('main')); 
+        var myChart1 = echarts.init(document.getElementById('main1')); 
+        var host = "http://localhost:8080/gongzuoquan-back-rest/back";
+    	var getNotifyURL = host + "/user/data";
+    	function notifyList() {
+    	    $.getJSON(getNotifyURL, function(data) {
+    	        return data;
+    	     });
+    	}
+    	notifyList();
+        var option = {
+            tooltip: {
+                show: true
+            },
+            legend: {
+                data:['每日的增长量']
+            },
+            xAxis : [
+                {
+                    type : 'category',
+                    data : ["周一","周二","周三","周四","周五","周六","周日"]
+                }
+            ],
+            yAxis : [
+                {
+                    type : 'value'
+                }
+            ],
+            series : [
+                {
+                    "name":"每日的增长量",
+                    "type":"bar",
+                    "data":[5, 20, 40, 10, 10, 20,100]
+                }
+            ]
+        };
+
+        // 为echarts对象加载数据 
+        myChart.setOption(option); 
+        
+        var option1 = {
+                tooltip: {
+                    show: true
+                },
+                legend: {
+                    data:['销量']
+                },
+                xAxis : [
+                    {
+                        type : 'category',
+                        data : ["周一","周二","周三","周四","周五","周六","周日"]
+                    }
+                ],
+                yAxis : [
+                    {
+                        type : 'value'
+                    }
+                ],
+                series : [
+                    {
+                        "name":"销量",
+                        "type":"bar",
+                        "data":[80, 20, 40, 10, 10, 20,10000]
+                    }
+                ]
+            };
+        // 为echarts对象加载数据 
+        myChart1.setOption(option1); 
+        
+    </script>
+</body>
