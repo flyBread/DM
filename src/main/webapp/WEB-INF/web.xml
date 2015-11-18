@@ -67,7 +67,7 @@
 	</servlet>
 	<servlet-mapping>
 		<servlet-name>springmvc</servlet-name>
-		<url-pattern>/*</url-pattern>
+		<url-pattern>/web/*</url-pattern>
 	</servlet-mapping>
 
 	<!-- 欢迎页 -->

@@ -1,8 +1,8 @@
 package rest.controler;
 
+import java.io.IOException;
 import java.nio.charset.Charset;
 
-import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 
 import org.slf4j.Logger;
@@ -13,6 +13,8 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 @Controller
@@ -31,6 +33,17 @@ public class PushServerRest {
   @ResponseBody
   public ResponseEntity<String> getMsgsHistory(HttpServletRequest httpServletRequest) {
     logger.info("请求的路径是：{}", httpServletRequest.getRequestURI());
+    ResponseEntity<String> result = new ResponseEntity<String>("helloworld", getResponseHeaders(),
+        HttpStatus.OK);
+
+    return result;
+  }
+
+  @RequestMapping(value = "/ex", method = RequestMethod.POST)
+  @ResponseBody
+  public ResponseEntity<String> pushNotify(HttpServletRequest httpServletRequest,
+      @RequestParam(value = "alert", required = true) String alert) throws IOException {
+    logger.info("alert：{}", alert);
     ResponseEntity<String> result = new ResponseEntity<String>("helloworld", getResponseHeaders(),
         HttpStatus.OK);
 

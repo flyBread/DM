@@ -35,7 +35,7 @@ public class Configuration {
     return SignalHolder.ins;
   }
 
-  public String getConfigValue(String key) {
+  public String getvalue(String key) {
     if (this.proper != null) {
       return this.proper.getProperty(key);
     } else {
@@ -44,7 +44,7 @@ public class Configuration {
   }
 
   public static void main(String[] args) {
-    String value = Configuration.getSignalIns().getConfigValue("mongos_path");
+    String value = Configuration.getSignalIns().getvalue("dbType");
     System.out.println(value);
 
   }

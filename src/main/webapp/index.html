@@ -2,7 +2,25 @@
 <head>
     <meta charset="utf-8">
     <title>ECharts</title>
+    <script src="static/jquery-1.10.1.min.js"></script>
+    <script src="http://echarts.baidu.com/build/dist/echarts-all.js"></script>
+      <script type="text/javascript">
+      $(document).ready(function(){
+    	  $("button").click(function(){
+    	    $.post("web/push/rest/ex",
+    	    {
+    	      alert:"select * from Student",
+    	    },
+    	    function(data,status){
+    	      alert("数据：" + data + "\n状态：" + status);
+    	    });
+    	  });
+    	});
+    </script>
+
+
 </head>
 <body>
 <a href="./userInfo.html"> 用户信息（每日增长，总体趋势）</a>
+<button>向页面发送 HTTP POST 请求，并获得返回的结果</button>
 </body>
